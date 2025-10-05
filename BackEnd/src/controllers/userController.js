@@ -38,7 +38,7 @@ const userController = {
       res.status(201).json({ status: "success", token, data: userToReturn });
     } catch (error) {
       console.error(error);
-      res.status(500).json({ msg: "Server Error" });
+      res.status(500).json({ status: "error", msg: "Server Error" });
     }
   },
 
@@ -48,7 +48,7 @@ const userController = {
       res.json({ status: "success", data: { user } });
     } catch (error) {
       console.error(error);
-      res.status(500).json({ msg: "Server Error" });
+      res.status(500).json({ status: "error", msg: "Server Error" });
     }
   },
 
@@ -61,7 +61,7 @@ const userController = {
       res.json(users);
     } catch (error) {
       console.error(error);
-      res.status(500).json({ msg: "Server Error" });
+      res.status(500).json({ status: "error", msg: "Server Error" });
     }
   },
 
@@ -73,16 +73,16 @@ const userController = {
       const user = await User.findById(req.params.id).select("-password");
 
       if (!user) {
-        return res.status(404).json({ msg: "User not found" });
+        return res.status(404).json({ status: "error", msg: "User not found" });
       }
 
-      res.json(user);
+      res.status(200).json({ status: "success", data: { user } });
     } catch (error) {
       console.error(error.message);
       if (error.kind === "ObjectId") {
-        return res.status(404).json({ msg: "User not found" });
+        return res.status(404).json({ status: "error", msg: "User not found" });
       }
-      res.status(500).json({ msg: "Server Error" });
+      res.status(500).json({ status: "error", msg: "Server Error" });
     }
   },
 
@@ -95,7 +95,7 @@ const userController = {
     try {
       let user = await User.findById(req.params.id);
       if (!user) {
-        return res.status(404).json({ msg: "User not found" });
+        return res.status(404).json({ status: "error", msg: "User not found" });
       }
 
       // Build user object
@@ -111,10 +111,10 @@ const userController = {
         { new: true }
       ).select("-password");
 
-      res.json(user);
+      res.status(200).json({ status: "success", data: { user } });
     } catch (error) {
       console.error(error.message);
-      res.status(500).json({ msg: "Server Error" });
+      res.status(500).json({ status: "error", msg: "Server Error" });
     }
   },
 
@@ -126,18 +126,18 @@ const userController = {
       const user = await User.findById(req.params.id);
 
       if (!user) {
-        return res.status(404).json({ msg: "User not found" });
+        return res.status(404).json({ status: "error", msg: "User not found" });
       }
 
       await user.deleteOne(); // Mongoose 6+
 
-      res.json({ msg: "User removed" });
+      res.status(200).json({ status: "success", msg: "User removed" });
     } catch (error) {
       console.error(error.message);
       if (error.kind === "ObjectId") {
-        return res.status(404).json({ msg: "User not found" });
+        return res.status(404).json({ status: "error", msg: "User not found" });
       }
-      res.status(500).json({ msg: "Server Error" });
+      res.status(500).json({ status: "error", msg: "Server Error" });
     }
   },
 };

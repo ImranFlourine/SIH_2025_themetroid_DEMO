@@ -43,7 +43,7 @@ const ticketController = {
       res.status(201).json(createdTicket);
     } catch (error) {
       console.error(error.message);
-      res.status(500).json({ msg: "Server Error" });
+      res.status(500).json({ status: "error", msg: "Server Error" });
     }
   },
 
@@ -52,10 +52,10 @@ const ticketController = {
       const tickets = await Ticket.find({ createdBy: req.user.id })
         .populate("createdBy", "name email")
         .populate("assignedTo", "name email");
-      res.json(tickets);
+      res.status(200).json({ status: "success", data: { tickets } });
     } catch (error) {
       console.error(error.message);
-      res.status(500).json({ msg: "Server Error" });
+      res.status(500).json({ status: "error", msg: "Server Error" });
     }
   },
 
@@ -67,10 +67,10 @@ const ticketController = {
       const tickets = await Ticket.find()
         .populate("createdBy", "name email")
         .populate("assignedTo", "name email");
-      res.json(tickets);
+      res.status(200).json({ status: "success", data: { tickets } });
     } catch (error) {
       console.error(error.message);
-      res.status(500).json({ msg: "Server Error" });
+      res.status(500).json({ status: "error", msg: "Server Error" });
     }
   },
 
@@ -84,16 +84,20 @@ const ticketController = {
         .populate("assignedTo", "name email");
 
       if (!ticket) {
-        return res.status(404).json({ msg: "Ticket not found" });
+        return res
+          .status(404)
+          .json({ status: "error", msg: "Ticket not found" });
       }
 
-      res.json(ticket);
+      res.status(200).json({ status: "success", data: { ticket } });
     } catch (error) {
       console.error(error.message);
       if (error.kind === "ObjectId") {
-        return res.status(404).json({ msg: "Ticket not found" });
+        return res
+          .status(404)
+          .json({ status: "error", msg: "Ticket not found" });
       }
-      res.status(500).json({ msg: "Server Error" });
+      res.status(500).json({ status: "error", msg: "Server Error" });
     }
   },
 
@@ -105,7 +109,9 @@ const ticketController = {
       const ticket = await Ticket.findById(req.params.id);
 
       if (!ticket) {
-        return res.status(404).json({ msg: "Ticket not found" });
+        return res
+          .status(404)
+          .json({ status: "error", msg: "Ticket not found" });
       }
 
       // Add authorization check if needed, e.g., only admin or assigned user can update
@@ -116,10 +122,12 @@ const ticketController = {
         { new: true }
       );
 
-      res.json(updatedTicket);
+      res
+        .status(200)
+        .json({ status: "success", data: { ticket: updatedTicket } });
     } catch (error) {
       console.error(error.message);
-      res.status(500).json({ msg: "Server Error" });
+      res.status(500).json({ status: "error", msg: "Server Error" });
     }
   },
 
@@ -131,7 +139,9 @@ const ticketController = {
       const ticket = await Ticket.findById(req.params.id);
 
       if (!ticket) {
-        return res.status(404).json({ msg: "Ticket not found" });
+        return res
+          .status(404)
+          .json({ status: "error", msg: "Ticket not found" });
       }
 
       // Add authorization check if needed, e.g., only admin can delete
@@ -146,13 +156,15 @@ const ticketController = {
         { $pull: { ticketCreated: ticket._id, ticketAssigned: ticket._id } }
       );
 
-      res.json({ msg: "Ticket removed" });
+      res.status(200).json({ status: "success", msg: "Ticket removed" });
     } catch (error) {
       console.error(error.message);
       if (error.kind === "ObjectId") {
-        return res.status(404).json({ msg: "Ticket not found" });
+        return res
+          .status(404)
+          .json({ status: "error", msg: "Ticket not found" });
       }
-      res.status(500).json({ msg: "Server Error" });
+      res.status(500).json({ status: "error", msg: "Server Error" });
     }
   },
 };
