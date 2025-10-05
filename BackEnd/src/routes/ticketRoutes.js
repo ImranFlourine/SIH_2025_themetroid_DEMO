@@ -10,13 +10,13 @@ router
   .post(authMiddleware.protect, ticketController.createTicket);
 
 router
+  .route("/my-tickets")
+  .get(authMiddleware.protect, ticketController.getMyTickets);
+
+router
   .route("/:id")
   .get(authMiddleware.protect, ticketController.getTicketById)
   .put(authMiddleware.protect, ticketController.updateTicket)
   .delete(authMiddleware.protect, ticketController.deleteTicket);
-
-router
-  .route("/my-tickets")
-  .get(authMiddleware.protect, ticketController.getMyTickets);
 
 export default router;
