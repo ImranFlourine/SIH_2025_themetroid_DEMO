@@ -12,8 +12,10 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useUser } from "@/context/UserContext";
+import { attemptLogin } from "@/services/apiTicket";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { BounceLoader } from "react-spinners";
 
 const User = {
   user: {
@@ -29,52 +31,55 @@ const User = {
       phone: "+91-9876543210",
       location: "New Delhi, India",
     },
-  },
-  auth: {
-    token: "eyJhbGciOiJIUzI1NiIsInR5cCI6Ikp...",
-    refreshToken: "d2FzZGZhc2RmYXNkZg...",
-    expiresAt: "2025-10-02T21:30:00Z",
-  },
-  preferences: {
-    theme: "light",
-    language: "en",
-    notifications: {
-      email: true,
-      sms: false,
-      inApp: true,
-    },
-  },
-  permissions: [
-    "create_ticket",
-    "view_ticket",
-    "update_ticket",
-    "chat_with_ai",
-  ],
-  lastLogin: "2025-10-01T20:15:00Z",
-  session: {
-    ip: "106.213.45.67",
-    device: "Windows 11 - Chrome Browser",
-  },
+  }
 };
 
 const page = () => {
-  const { currentUser, setCurrentUser } = useUser();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+
+  const {
+    currentUser,
+    setCurrentUser,
+    isLoading,
+    setIsLoading
+  } = useUser();
+
   const router = useRouter();
 
-  const logIn = () => {
-    // login logic
-    setCurrentUser(User);
-    router.push("/dashboard");
+  const logIn = async () => {
+    console.log('Attempting Login')
+    setIsLoading(true);
+    try {
+      const result = await attemptLogin({ email, password });
+
+      if (result.status !== "success") {
+        throw new Error(result.msg);
+      }
+      // login logic
+      setCurrentUser(result.data);
+      // setCurrentUser(User);
+      router.push("/dashboard");
+    }
+    catch (error) {
+      console.error(error.message);
+    }
+    finally {
+      setIsLoading(false);
+    }
   };
 
   useEffect(() => {
     // If already logged in, redirect to home
-    if (currentUser) {
+    if (currentUser && !isLoading) {
       router.push("/dashboard");
     }
-  }, [router]);
+  }, [router, currentUser]);
 
-  return (
+  return (<>
+    {isLoading && <div className="h-screen w-screen bg-black/30 backdrop-blur-sm flex items-center justify-center absolute top-0 left-0">
+      <BounceLoader color="#4A90E2" />
+    </div>}
     <div className="grid grid-cols-2 h-screen">
       <div>
         <img
@@ -103,13 +108,21 @@ const page = () => {
               <Label htmlFor="email" className="mb-2">
                 Email
               </Label>
-              <Input type="email" placeholder="Email" id="email" className="" />
+              <Input
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                type="email"
+                placeholder="Email"
+                id="email"
+                className="" />
             </div>
             <div>
               <Label htmlFor="password" className="mb-2">
                 Password
               </Label>
               <Input
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
                 type="password"
                 placeholder="Password"
                 id="password"
@@ -125,7 +138,7 @@ const page = () => {
           </CardFooter>
         </Card>
       </div>
-    </div>
+    </div></>
   );
 };
 

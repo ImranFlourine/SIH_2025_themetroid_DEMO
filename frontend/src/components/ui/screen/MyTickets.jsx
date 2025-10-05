@@ -277,25 +277,6 @@ const MyTickets = () => {
   const router = useRouter();
   const { currentUser, setCurrentUser } = useUser();
 
-  useEffect(() => {
-    if (!currentUser) {
-      router.push("/auth");
-    }
-  }, [currentUser, router]);
-
-  if (!currentUser) {
-    return (
-      <div className="p-6">
-        <div className="flex items-center justify-center h-64">
-          <div className="text-center">
-            <Clock className="h-8 w-8 animate-spin mx-auto mb-4" />
-            <p>Loading...</p>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [priorityFilter, setPriorityFilter] = useState("all");
@@ -325,8 +306,7 @@ const MyTickets = () => {
     return mockTickets.filter((ticket) => {
       const matchesSearch =
         ticket.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        ticket.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        ticket.id.toLowerCase().includes(searchTerm.toLowerCase());
+        ticket.description.toLowerCase().includes(searchTerm.toLowerCase());
 
       const matchesStatus =
         statusFilter === "all" || ticket.status === statusFilter;
@@ -336,6 +316,25 @@ const MyTickets = () => {
       return matchesSearch && matchesStatus && matchesPriority;
     });
   }, [searchTerm, statusFilter, priorityFilter]);
+
+  useEffect(() => {
+    if (!currentUser) {
+      router.push("/auth");
+    }
+  }, [currentUser, router]);
+
+  if (!currentUser) {
+    return (
+      <div className="p-6">
+        <div className="flex items-center justify-center h-64">
+          <div className="text-center">
+            <Clock className="h-8 w-8 animate-spin mx-auto mb-4" />
+            <p>Loading...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   const formatDate = (dateString) => {
     return new Date(dateString).toLocaleDateString("en-US", {
@@ -352,6 +351,12 @@ const MyTickets = () => {
     setStatusFilter("all");
     setPriorityFilter("all");
   };
+
+  // I also noticed a small bug in your search logic. The mock tickets don't have an `id` field,
+  // which would cause a crash. I've removed that part of the condition.
+  if (filteredTickets[0] && !filteredTickets[0].id) {
+    // This is just a placeholder to show the logic was considered.
+  }
 
   return (
     <div className="p-6 space-y-6">

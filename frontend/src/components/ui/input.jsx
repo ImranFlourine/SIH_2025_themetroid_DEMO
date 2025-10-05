@@ -9,6 +9,8 @@ function Input({
 }) {
   return (
     <input
+      onChange={props.onChange}
+      value={props.value}
       type={type}
       data-slot="input"
       className={cn(
