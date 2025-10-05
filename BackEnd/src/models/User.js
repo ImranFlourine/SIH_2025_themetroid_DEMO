@@ -1,26 +1,31 @@
 import mongoose from "mongoose";
 
+const contactSchema = new mongoose.Schema({
+  phone: {
+    type: String,
+    trim: true,
+  },
+  location: {
+    type: String,
+    trim: true,
+  },
+});
+
 const userSchema = new mongoose.Schema(
   {
-    employeeId: {
-      type: String,
-      required: [true, "Please add an employee ID"],
-      unique: true,
-      trim: true,
-    },
     name: {
       type: String,
-      required: [true, "Please add a name"],
+      required: [true, "Please provide a name"],
       trim: true,
     },
     email: {
       type: String,
-      required: true,
+      required: [true, "Please provide an email address"],
       unique: true,
-      trim: true,
       lowercase: true,
+      trim: true,
       match: [
-        /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/,
+        /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/,
         "Please fill a valid email address",
       ],
     },
@@ -28,10 +33,35 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: [true, "Password is requied"],
     },
-    isAdmin: {
-      type: Boolean,
+    employeeId: {
+      type: String,
+      required: [true, "Please provide an employee ID"],
+      unique: true,
+      trim: true,
+    },
+    department: {
+      type: String,
       required: true,
-      default: false,
+      trim: true,
+    },
+    designation: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    role: {
+      type: String,
+      enum: ["employee", "admin", "manager", "it_support"],
+      default: "employee",
+    },
+    avatarUrl: {
+      type: String,
+      trim: true,
+      default: "",
+    },
+    contact: {
+      type: contactSchema,
+      default: {},
     },
     ticketAssigned: {
       type: [

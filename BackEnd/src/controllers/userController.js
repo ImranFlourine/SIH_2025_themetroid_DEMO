@@ -7,24 +7,58 @@ const userController = {
   // @desc    Create a new user
   // @route   POST /api/users
   // @access  Public (for now, should be Admin in production)
+
+  // Update this function for new user model
+  // @desc    Register a new user
+  // @route   POST /api/users/register
+  // @access  Public
   createUser: async (req, res) => {
-    const { employeeId, name, email, password, isAdmin } = req.body;
+    const {
+      name,
+      email,
+      password,
+      employeeId,
+      department,
+      designation,
+      role,
+      avatarUrl,
+      contact,
+    } = req.body;
 
     try {
+      // Validate required fields
+      if (
+        !name ||
+        !email ||
+        !password ||
+        !employeeId ||
+        !department ||
+        !designation
+      ) {
+        return res
+          .status(400)
+          .json({ status: "error", msg: "Please provide all required fields" });
+      }
       let user = await User.findOne({ $or: [{ email }, { employeeId }] });
       if (user) {
-        return res.status(400).json({ msg: "User already exists" });
+        return res
+          .status(400)
+          .json({ msg: "User already exists", email, employeeId });
       }
 
       const salt = await bcrypt.genSalt(10);
       const hashedPassword = await bcrypt.hash(password, salt);
 
       user = new User({
-        employeeId,
         name,
         email,
         password: hashedPassword,
-        isAdmin,
+        employeeId,
+        department,
+        designation,
+        role,
+        avatarUrl,
+        contact,
       });
 
       await user.save();
@@ -35,7 +69,9 @@ const userController = {
 
       const token = createAndSendTokenCookie(user, res);
 
-      res.status(201).json({ status: "success", token, data: userToReturn });
+      res
+        .status(201)
+        .json({ status: "success", token, data: { user: userToReturn } });
     } catch (error) {
       console.error(error);
       res.status(500).json({ status: "error", msg: "Server Error" });
