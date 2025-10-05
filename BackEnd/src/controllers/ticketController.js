@@ -49,10 +49,15 @@ const ticketController = {
 
   getMyTickets: async (req, res) => {
     try {
-      const tickets = await Ticket.find({ createdBy: req.user.id })
+      const createdBy = await Ticket.find({ createdBy: req.user.id })
         .populate("createdBy", "name email")
         .populate("assignedTo", "name email");
-      res.status(200).json({ status: "success", data: { tickets } });
+      const assignedTo = await Ticket.find({ assignedTo: req.user.id })
+        .populate("createdBy", "name email")
+        .populate("assignedTo", "name email");
+      res
+        .status(200)
+        .json({ status: "success", data: { createdBy, assignedTo } });
     } catch (error) {
       console.error(error.message);
       res.status(500).json({ status: "error", msg: "Server Error" });
