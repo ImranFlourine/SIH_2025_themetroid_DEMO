@@ -7,7 +7,8 @@ const ticketController = {
   // @access  Private
   createTicket: async (req, res) => {
     try {
-      const { title, description, priority, category, subcategory } = req.body;
+      const { title, description, priority, category, subcategory, tags } =
+        req.body;
 
       // Assuming auth middleware adds user to req
       const createdBy = req.user.id;
@@ -26,6 +27,7 @@ const ticketController = {
         subcategory,
         createdBy,
         assignedTo,
+        tags,
       });
 
       const createdTicket = await ticket.save();
