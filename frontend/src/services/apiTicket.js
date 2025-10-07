@@ -1,4 +1,6 @@
-const DEFAULT_API = "http://localhost:5000/api";
+import { getToken } from "@/lib/utils";
+
+const DEFAULT_API = "https://sih-2025-themetroid-demo.onrender.com/api";
 
 const API = DEFAULT_API;
 
@@ -43,5 +45,45 @@ export async function attemptLogout() {
   if (typeof window !== "undefined") {
     localStorage.removeItem("isLoggedIn");
     localStorage.removeItem("token");
+    localStorage.removeItem("user");
   }
+}
+
+export async function fetchAllMyTickets() {
+  const result = await fetch(`${API}/tickets/my-tickets`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${getToken()}`,
+    },
+    credentials: "include",
+  });
+  console.log("Fetching my tickets from API:", result);
+  return result.json();
+}
+
+export async function createTicket(ticketData) {
+  const result = await fetch(`${API}/tickets`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${getToken()}`,
+    },
+    body: JSON.stringify(ticketData),
+    credentials: "include",
+  });
+  return result.json();
+}
+
+export async function updateTicket(ticketId, updateData) {
+  const result = await fetch(`${API}/tickets/${ticketId}`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${getToken()}`,
+    },
+    body: JSON.stringify(updateData),
+    credentials: "include",
+  });
+  return result.json();
 }

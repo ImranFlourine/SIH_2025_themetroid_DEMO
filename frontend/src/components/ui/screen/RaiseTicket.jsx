@@ -66,17 +66,9 @@ const priorityLevels = [
     color: "bg-orange-100 text-orange-800",
     icon: AlertCircle,
   },
-  {
-    value: "critical",
-    label: "Critical",
-    description: "System down, business operations stopped",
-    color: "bg-red-100 text-red-800",
-    icon: AlertTriangle,
-  },
 ];
 
 const RaiseTicket = () => {
-  const router = useRouter();
   const { currentUser } = useUser();
 
   // Form state
@@ -86,16 +78,13 @@ const RaiseTicket = () => {
     category: "",
     priority: "",
     department: "",
-    location: "",
-    contactPhone: "",
-    expectedDate: "",
-    additionalNotes: "",
+    tags: [],
   });
 
   const [attachments, setAttachments] = useState([]);
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submitStatus, setSubmitStatus] = useState(null); // 'success', 'error', null
+  const [submitStatus, setSubmitStatus] = useState(null);
 
   // Handle input changes
   const handleInputChange = (field, value) => {
@@ -111,33 +100,6 @@ const RaiseTicket = () => {
         [field]: "",
       }));
     }
-  };
-
-  // Handle file attachments
-  const handleFileUpload = (event) => {
-    const files = Array.from(event.target.files);
-    const newAttachments = files.map((file) => ({
-      id: Date.now() + Math.random(),
-      name: file.name,
-      size: file.size,
-      type: file.type,
-    }));
-
-    setAttachments((prev) => [...prev, ...newAttachments]);
-  };
-
-  // Remove attachment
-  const removeAttachment = (id) => {
-    setAttachments((prev) => prev.filter((att) => att.id !== id));
-  };
-
-  // Format file size
-  const formatFileSize = (bytes) => {
-    if (bytes === 0) return "0 Bytes";
-    const k = 1024;
-    const sizes = ["Bytes", "KB", "MB", "GB"];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i];
   };
 
   // Form validation
@@ -233,60 +195,19 @@ const RaiseTicket = () => {
     }
   };
 
-  // Get selected category and priority objects
-  const selectedCategory = ticketCategories.find(
-    (cat) => cat.value === formData.category
-  );
-  const selectedPriority = priorityLevels.find(
-    (pri) => pri.value === formData.priority
-  );
-
-  // Don't render if no user
-  if (!currentUser) {
-    return (
-      <div className="p-6">
-        <div className="flex items-center justify-center h-64">
-          <div className="text-center">
-            <Clock className="h-8 w-8 animate-spin mx-auto mb-4" />
-            <p>Loading...</p>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="p-6 max-w-4xl mx-auto space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Raise a Ticket</h1>
+          <h1 className="text-3xl font-bold tracking-tight text-primary">
+            Raise a Ticket
+          </h1>
           <p className="text-muted-foreground">
             Submit a new IT support request
           </p>
         </div>
-        <Button variant="outline" onClick={() => router.push("/dashboard")}>
-          Back to Dashboard
-        </Button>
       </div>
-
-      {/* Success/Error Messages */}
-      {submitStatus === "success" && (
-        <Card className="border-green-200 bg-green-50">
-          <CardContent className="pt-6">
-            <div className="flex items-center space-x-2 text-green-800">
-              <CheckCircle className="h-5 w-5" />
-              <span className="font-medium">
-                Ticket submitted successfully!
-              </span>
-            </div>
-            <p className="text-green-700 mt-1 text-sm">
-              Your ticket has been created and assigned a unique ID. You'll
-              receive email updates on its progress.
-            </p>
-          </CardContent>
-        </Card>
-      )}
 
       {submitStatus === "error" && (
         <Card className="border-red-200 bg-red-50">
@@ -456,163 +377,6 @@ const RaiseTicket = () => {
               {errors.priority && (
                 <p className="text-sm text-red-500 mt-1">{errors.priority}</p>
               )}
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Contact and Location */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Building className="h-5 w-5" />
-              Contact & Location Details
-            </CardTitle>
-            <CardDescription>
-              Help our support team reach you and locate the issue
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid gap-4 md:grid-cols-2">
-              <div className="space-y-2">
-                <Label htmlFor="location">Location *</Label>
-                <Input
-                  id="location"
-                  value={formData.location}
-                  onChange={(e) =>
-                    handleInputChange("location", e.target.value)
-                  }
-                  placeholder="e.g., Building A, Floor 3, Room 301"
-                  className={errors.location ? "border-red-500" : ""}
-                />
-                {errors.location && (
-                  <p className="text-sm text-red-500">{errors.location}</p>
-                )}
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="contactPhone">Contact Phone</Label>
-                <Input
-                  id="contactPhone"
-                  value={formData.contactPhone}
-                  onChange={(e) =>
-                    handleInputChange("contactPhone", e.target.value)
-                  }
-                  placeholder="+91-XXXXXXXXXX"
-                  className={errors.contactPhone ? "border-red-500" : ""}
-                />
-                {errors.contactPhone && (
-                  <p className="text-sm text-red-500">{errors.contactPhone}</p>
-                )}
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="expectedDate">Expected Resolution Date</Label>
-              <Input
-                id="expectedDate"
-                type="date"
-                value={formData.expectedDate}
-                onChange={(e) =>
-                  handleInputChange("expectedDate", e.target.value)
-                }
-                min={new Date().toISOString().split("T")[0]}
-              />
-              <p className="text-sm text-muted-foreground">
-                When do you need this issue resolved? (Optional)
-              </p>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Attachments */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Upload className="h-5 w-5" />
-              Attachments
-            </CardTitle>
-            <CardDescription>
-              Upload screenshots, error logs, or other relevant files
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex items-center space-x-4">
-              <input
-                type="file"
-                id="fileUpload"
-                multiple
-                onChange={handleFileUpload}
-                className="hidden"
-                accept=".jpg,.jpeg,.png,.gif,.pdf,.doc,.docx,.txt,.log"
-              />
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => document.getElementById("fileUpload").click()}
-              >
-                <Plus className="h-4 w-4 mr-2" />
-                Add Files
-              </Button>
-              <span className="text-sm text-muted-foreground">
-                Max 10MB per file. Supported: images, documents, logs
-              </span>
-            </div>
-
-            {attachments.length > 0 && (
-              <div className="space-y-2">
-                {attachments.map((file) => (
-                  <div
-                    key={file.id}
-                    className="flex items-center justify-between p-3 border rounded-lg"
-                  >
-                    <div className="flex items-center space-x-3">
-                      <FileText className="h-4 w-4 text-muted-foreground" />
-                      <div>
-                        <p className="text-sm font-medium">{file.name}</p>
-                        <p className="text-xs text-muted-foreground">
-                          {formatFileSize(file.size)}
-                        </p>
-                      </div>
-                    </div>
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => removeAttachment(file.id)}
-                    >
-                      <X className="h-4 w-4" />
-                    </Button>
-                  </div>
-                ))}
-              </div>
-            )}
-          </CardContent>
-        </Card>
-
-        {/* Additional Notes */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Info className="h-5 w-5" />
-              Additional Information
-            </CardTitle>
-            <CardDescription>
-              Any other details that might help resolve your issue
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-2">
-              <Label htmlFor="additionalNotes">Additional Notes</Label>
-              <textarea
-                id="additionalNotes"
-                value={formData.additionalNotes}
-                onChange={(e) =>
-                  handleInputChange("additionalNotes", e.target.value)
-                }
-                placeholder="Any additional context, workarounds you've tried, or specific requirements..."
-                rows={3}
-                className="flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-              />
             </div>
           </CardContent>
         </Card>

@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import PrompBox from "../input/PrompBox";
 import axios from "axios";
+import { createTicket } from "@/services/apiTicket";
 
 // Predefined quick actions
 const quickActions = [
@@ -94,6 +95,37 @@ const Chatbot = () => {
       });
 
       console.log("Chatbot response:", response.data);
+      // title, description, priority, category, subcategory
+      if (response.data.ticket) {
+        const { title, description, priority, category, subcategory, tags } =
+          response.data.ticket;
+        // Create ticket in the backend
+        try {
+          await createTicket({
+            title,
+            description,
+            priority,
+            category,
+            subcategory,
+            tags,
+          });
+
+          setMessages((prev) => [
+            ...prev,
+            {
+              id: Date.now(),
+              type: "bot",
+              content: `✅ **Ticket Created Successfully!**\n\n**Title:** ${title}\n**Priority:** ${priority}\n**Category:** ${category}\n\nYour ticket has been submitted and assigned to a support agent. You can track its progress in the "My Tickets" section.`,
+              timestamp: new Date(),
+              status: "received",
+            },
+          ]);
+
+          return;
+        } catch (error) {
+          console.error("Error creating ticket:", error);
+        }
+      }
 
       setMessages((prev) => [
         ...prev,
@@ -144,6 +176,39 @@ const Chatbot = () => {
         message: action, // 👈 use the quick action text
         session_id: sessionId,
       });
+
+      console.log("Chatbot response:", response.data);
+      // title, description, priority, category, subcategory
+      if (response.data.ticket) {
+        const { title, description, priority, category, subcategory, tags } =
+          response.data.ticket;
+        // Create ticket in the backend
+        try {
+          await createTicket({
+            title,
+            description,
+            priority,
+            category,
+            subcategory,
+            tags,
+          });
+
+          setMessages((prev) => [
+            ...prev,
+            {
+              id: Date.now(),
+              type: "bot",
+              content: `✅ **Ticket Created Successfully!**\n\n**Title:** ${title}\n**Priority:** ${priority}\n**Category:** ${category}\n\nYour ticket has been submitted and assigned to a support agent. You can track its progress in the "My Tickets" section.`,
+              timestamp: new Date(),
+              status: "received",
+            },
+          ]);
+
+          return;
+        } catch (error) {
+          console.error("Error creating ticket:", error);
+        }
+      }
 
       setMessages((prev) => [
         ...prev,

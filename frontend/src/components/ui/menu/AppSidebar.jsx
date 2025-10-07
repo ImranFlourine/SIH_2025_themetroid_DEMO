@@ -15,6 +15,11 @@ import {
 import { Separator } from "../separator";
 import { Home, Inbox, Settings } from "lucide-react";
 import { useTab } from "@/context/TabContext";
+import { useUser } from "@/context/UserContext";
+import { LogOut } from "lucide-react";
+import { attemptLogout } from "@/services/apiTicket";
+import { useRouter } from "next/navigation";
+import { cn } from "@/lib/utils";
 
 const navigation = [
   {
@@ -45,7 +50,26 @@ const navigation = [
 ];
 
 const AppSidebar = () => {
-  const { setCurrentTab } = useTab();
+  const { currentTab, setCurrentTab } = useTab();
+  const { currentUser, isLoading, setIsLoading } = useUser();
+
+  const router = useRouter();
+
+  const logOut = async () => {
+    setIsLoading(true);
+    try {
+      await attemptLogout();
+      router.push("/auth");
+    } catch (error) {
+      console.error("Error logging out:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  if (isLoading || !currentUser) {
+    return null;
+  }
 
   const handleTabChange = (value) => {
     setCurrentTab(value);
@@ -54,6 +78,7 @@ const AppSidebar = () => {
   return (
     <Sidebar>
       {/* Header */}
+      {console.log(currentUser.user)}
       <SidebarHeader className={"flex items-center justify-center p-2"}>
         <img
           src="/assets/img/PowerGridLogo.png"
@@ -76,7 +101,11 @@ const AppSidebar = () => {
                   <SidebarMenuButton asChild>
                     <div
                       key={item.title}
-                      className="flex items-center gap-3 py-5 cursor-pointer"
+                      className={cn(
+                        "flex items-center gap-3 py-5 cursor-pointer",
+                        currentTab === item.value &&
+                          "bg-primary text-background hover:!bg-primary/90 hover:!text-background"
+                      )}
                     >
                       <div>
                         <item.icon size={18} />
@@ -94,7 +123,22 @@ const AppSidebar = () => {
       </SidebarContent>
 
       {/* Footer */}
-      <SidebarFooter>Footer</SidebarFooter>
+      <SidebarFooter
+        className={"py-4 flex flex-row items-center justify-between"}
+      >
+        <div className="flex flex-col">
+          <span className="font-semibold">{currentUser.user.name}</span>
+          <span className="text-muted-foreground">
+            {currentUser.user.email}
+          </span>
+        </div>
+        <div
+          className="hover:cursor-pointer hover:bg-destructive/20 p-1 rounded-sm"
+          onClick={logOut}
+        >
+          <LogOut />
+        </div>
+      </SidebarFooter>
     </Sidebar>
   );
 };

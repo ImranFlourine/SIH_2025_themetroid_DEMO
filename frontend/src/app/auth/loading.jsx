@@ -1,5 +1,5 @@
 import React from "react";
-import { BounceLoader, FadeLoader } from "react-spinners";
+import { BounceLoader } from "react-spinners";
 
 const loading = () => {
   return (
