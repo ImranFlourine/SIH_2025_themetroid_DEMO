@@ -1,3 +1,4 @@
+import { Toaster } from "@/components/ui/sonner";
 import "./globals.css";
 import { UserProvider } from "@/context/UserContext";
 
@@ -11,6 +12,7 @@ export default function RootLayout({ children }) {
     <html lang="en" suppressHydrationWarning>
       <body className="font-sans antialiased">
         <UserProvider>{children}</UserProvider>
+        <Toaster />
       </body>
     </html>
   );

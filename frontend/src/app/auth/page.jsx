@@ -17,23 +17,6 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { BounceLoader } from "react-spinners";
 
-const User = {
-  user: {
-    id: "u12345",
-    name: "Priyanshu Singh",
-    email: "priyanshu.singh@powergrid.com",
-    employeeId: "EMP56789",
-    department: "IT",
-    designation: "Software Engineer",
-    role: "employee",
-    avatarUrl: "https://example.com/profile/u12345.png",
-    contact: {
-      phone: "+91-9876543210",
-      location: "New Delhi, India",
-    },
-  },
-};
-
 const page = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");

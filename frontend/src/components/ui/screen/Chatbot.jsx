@@ -198,7 +198,7 @@ const Chatbot = () => {
             {
               id: Date.now(),
               type: "bot",
-              content: `✅ **Ticket Created Successfully!**\n\n**Title:** ${title}\n**Priority:** ${priority}\n**Category:** ${category}\n\nYour ticket has been submitted and assigned to a support agent. You can track its progress in the "My Tickets" section.`,
+              content: `I have raised a ticket for regarding your issue. You can check the ticket in the "My Tickets" section.`,
               timestamp: new Date(),
               status: "received",
             },
