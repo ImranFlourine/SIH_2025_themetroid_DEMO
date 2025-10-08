@@ -128,7 +128,7 @@ const AppSidebar = () => {
       >
         <div className="flex flex-col">
           <span className="font-semibold">{currentUser.user.name}</span>
-          <span className="text-muted-foreground">
+          <span className="text-sm text-muted-foreground truncate max-w-[200px]">
             {currentUser.user.email}
           </span>
         </div>

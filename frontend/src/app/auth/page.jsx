@@ -52,7 +52,7 @@ const page = () => {
     }
   }, [isLoggedIn, currentUser, isLoading, router]);
 
-  if (isLoading) {
+  if (isLoading || currentUser) {
     return (
       <div className="h-screen w-screen flex items-center justify-center">
         <BounceLoader color="#4A90E2" />
