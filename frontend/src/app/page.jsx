@@ -2,31 +2,17 @@
 
 import { useUser } from "@/context/UserContext";
 import { useRouter } from "next/navigation";
+import { BounceLoader } from "react-spinners";
 import { useEffect } from "react";
 
 export default function Home() {
-  const { currentUser, setCurrentUser } = useUser();
   const router = useRouter();
-
-  const logOut = () => {
-    // logout logic
-    // clear user context
-    setCurrentUser(null);
-    router.push("/auth");
-  };
-  // redirect to login page
-
   useEffect(() => {
-    if (!currentUser) {
-      setCurrentUser(null);
-      router.push("/auth");
-    }
-  }, [currentUser, router]);
-
+    router.push("/auth");
+  });
   return (
-    <div>
-      Hello {currentUser ? currentUser.user.name : "Guest"}
-      <button onClick={logOut}>Logout</button>
+    <div className="h-screen w-screen flex items-center justify-center">
+      <BounceLoader color="#4A90E2" />
     </div>
   );
 }
